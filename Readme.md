@@ -4,8 +4,7 @@
 # clever
 
 Clever is a simple cli application to view \*.clef logs. Written in Rust &amp; powered by Ratatui
-
-![clever](./images/clever.gif)
+![image](https://github.com/user-attachments/assets/c556f641-da35-4593-9184-a0676055cdd2)
 
 # Installation
 
