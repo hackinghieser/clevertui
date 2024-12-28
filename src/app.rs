@@ -30,7 +30,7 @@ impl<'a> App<'a> {
     pub fn tick(&self) {}
 
     pub fn load_lines(&mut self, lines: &Vec<String>) {
-        self.event_collection = EventCollection::create_par(lines).unwrap();
+        self.event_collection = EventCollection::create(lines).unwrap();
     }
 
     pub fn get_event_types(&mut self) {
