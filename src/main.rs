@@ -9,12 +9,12 @@ pub mod ui;
 /// Terminal user interface.
 pub mod tui;
 
+pub mod event_log_level;
 /// Application updater.
 pub mod update;
 
-pub mod event_log_level;
-
 use std::{
+    error::Error,
     fs,
     io::{self},
 };
@@ -23,6 +23,7 @@ use update::update;
 #[command(author, version, about)]
 struct Args {
     file: Option<String>,
+    ignore_parsing_erros: Option<bool>,
 }
 
 use app::App;
@@ -37,16 +38,21 @@ use tui::Tui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-    let path: String;
-    match args.file {
-        Some(p) => path = p,
+    let path = match args.file {
+        Some(p) => p,
         None => {
             println!("No file path provided");
             return Ok(());
         }
     };
     // Create an application.
-    let mut app = create_app(path)?;
+    let mut app = match create_app(path) {
+        Ok(app) => app,
+        Err(e) => {
+            println!("Could not create Application {}", e);
+            return Err(e);
+        }
+    };
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -71,7 +77,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_app(path: String) -> Result<App<'static>, io::Error> {
+fn create_app(path: String) -> Result<App<'static>, Box<dyn Error>> {
     let lines = read_file(path.as_str())?;
     let mut app = App::new();
     app.file_path = path;
@@ -79,7 +85,7 @@ fn create_app(path: String) -> Result<App<'static>, io::Error> {
     app.filter_list_state = ListState::default();
     app.filter_list_state.select(Some(0));
     app.event_table_state.select(Some(0));
-    app.load_lines(&lines);
+    app.load_lines(&lines)?;
     app.get_event_types();
     Ok(app)
 }

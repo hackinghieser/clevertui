@@ -1,5 +1,7 @@
+use std::error::Error;
+
 use crate::event_log_level::EventLogLevel;
-use cleverlib::event_collection::EventCollection;
+use cleverlib::{clever_parser_options::CleverParserOptions, event_collection::EventCollection};
 use ratatui::widgets::{ListState, Row, TableState};
 
 #[derive(Debug, Default)]
@@ -29,8 +31,16 @@ impl<'a> App<'a> {
 
     pub fn tick(&self) {}
 
-    pub fn load_lines(&mut self, lines: &Vec<String>) {
-        self.event_collection = EventCollection::create(lines).unwrap();
+    pub fn load_lines(&mut self, lines: &Vec<String>) -> Result<(), Box<dyn Error>> {
+        let parsing_options = CleverParserOptions {
+            ignore_errors: Some(false),
+            debug: Some(false),
+        };
+        self.event_collection = match EventCollection::create(lines, Some(&parsing_options)) {
+            Ok(collection) => collection,
+            Err(e) => return Err(e.into()),
+        };
+        Ok(())
     }
 
     pub fn get_event_types(&mut self) {
@@ -51,7 +61,7 @@ impl<'a> App<'a> {
 
     pub fn move_row_up(&mut self, range: usize) {
         if let Some(selected) = self.event_table_state.selected() {
-            if selected >= range + 1 {
+            if selected > range {
                 self.event_table_state.select(Some(selected - range));
             } else {
                 self.event_table_state

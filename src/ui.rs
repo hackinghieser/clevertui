@@ -1,16 +1,16 @@
-use std::{str::FromStr, vec};
-
 use chrono::DateTime;
 use cleverlib::event::Event;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style, Styled, Stylize},
+    style::{Color, Modifier, Style, Stylize},
+    text::Line,
     widgets::{
-        block::{self, Title},
+        block::{self},
         Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, Wrap,
     },
     Frame,
 };
+use std::vec;
 
 struct Detail {
     timestap: String,
@@ -30,7 +30,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
             let main = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
-                .split(f.size());
+                .split(f.area());
 
             let detail_area = Layout::default()
                 .direction(Direction::Vertical)
@@ -47,7 +47,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .constraints([Constraint::Percentage(100)])
                 .split(detail_area[1]);
             for line in app.event_collection.events.iter() {
-                if app.event_types.len() >= 1 {
+                if !app.event_types.is_empty() {
                     let event_level = line.level.clone().unwrap_or_default().to_string();
                     if app
                         .event_types
@@ -66,18 +66,18 @@ pub fn render(app: &mut App, f: &mut Frame) {
                             ),
                             line.message.clone().unwrap_or_default().to_string(),
                         ]);
-                        clef_rows.push((&line, row));
+                        clef_rows.push((line, row));
                     }
                 }
             }
 
-            if clef_rows.len() >= 1 {
+            if !clef_rows.is_empty() {
                 let mut selected_row_index = app.event_table_state.selected().unwrap();
                 let selected_row: &Event = match clef_rows.get(selected_row_index) {
                     None => {
                         app.event_table_state.select(Some(0));
                         selected_row_index = 0;
-                        clef_rows.get(0).unwrap().0
+                        clef_rows.first().unwrap().0
                     }
                     Some(val) => val.0,
                 };
@@ -100,16 +100,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
                     .block(
                         Block::default()
                             .title("Clever")
-                            .title(
-                                block::Title::from(app.file_path.as_str())
-                                    .position(block::Position::Top)
-                                    .alignment(ratatui::layout::Alignment::Left),
-                            )
-                            .title(
-                                block::Title::from(selection_text)
-                                    .position(block::Position::Bottom)
-                                    .alignment(ratatui::layout::Alignment::Center),
-                            )
+                            .title_top(Line::from(app.file_path.as_str()).left_aligned())
+                            .title_bottom(Line::from(selection_text.as_str()).centered())
                             .title_position(ratatui::widgets::block::Position::Top)
                             .title_alignment(ratatui::layout::Alignment::Center)
                             .borders(Borders::ALL)
@@ -117,7 +109,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                             .title_style(Style::default().fg(ratatui::style::Color::White)),
                     )
                     .style(Style::default().fg(ratatui::style::Color::White))
-                    .highlight_style(Style::default().reversed());
+                    .row_highlight_style(Style::default().reversed());
                 f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
                 let log_level_detail = if detail.level.is_empty() {
@@ -159,7 +151,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
             }
             let stats = Block::default()
                 .borders(Borders::ALL)
-                .title(block::Title::from("Detail").position(block::Position::Top))
+                .title_top(Line::from("Detail"))
                 .border_type(ratatui::widgets::BorderType::Rounded)
                 .title("Quit:'Q'  Filter:'F")
                 .title_position(ratatui::widgets::block::Position::Bottom)
@@ -172,8 +164,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
             f.render_widget(stats, main[1]);
         }
         AppState::FILTERING => {
-            f.render_widget(Clear, f.size());
-            let area = centered_rect(40, 30, f.size());
+            f.render_widget(Clear, f.area());
+            let area = centered_rect(40, 30, f.area());
             let type_list: Vec<String> = app
                 .event_types
                 .iter()
@@ -197,11 +189,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         .borders(Borders::ALL)
                         .style(Style::default().fg(Color::White))
                         .border_type(block::BorderType::Rounded)
-                        .title(
-                            Title::from("Select: Spc | Close: F")
-                                .alignment(ratatui::layout::Alignment::Center)
-                                .position(block::Position::Bottom),
-                        ),
+                        .title_bottom(Line::from("Select: Spc | Close: F").centered()),
                 )
                 .style(Style::default().fg(Color::White))
                 .highlight_style(Style::default().add_modifier(Modifier::BOLD))
