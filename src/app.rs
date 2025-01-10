@@ -22,6 +22,7 @@ pub struct App<'a> {
     pub event_types: Vec<EventLogLevel>,
     pub app_state: AppState,
     pub event_collection: EventCollection,
+    pub ignore_parsing_errors: bool,
 }
 
 impl<'a> App<'a> {
@@ -33,7 +34,7 @@ impl<'a> App<'a> {
 
     pub fn load_lines(&mut self, lines: &Vec<String>) -> Result<(), Box<dyn Error>> {
         let parsing_options = CleverParserOptions {
-            ignore_errors: Some(false),
+            ignore_errors: Some(self.ignore_parsing_errors),
             debug: Some(false),
         };
         self.event_collection = match EventCollection::create(lines, Some(&parsing_options)) {

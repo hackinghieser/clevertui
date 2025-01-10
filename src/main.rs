@@ -23,6 +23,8 @@ use update::update;
 #[command(author, version, about)]
 struct Args {
     file: Option<String>,
+
+    #[arg(short, long)]
     ignore_parsing_erros: Option<bool>,
 }
 
@@ -38,6 +40,7 @@ use tui::Tui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
+
     let path = match args.file {
         Some(p) => p,
         None => {
@@ -45,14 +48,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
     };
+
+    let ignore_errors = args.ignore_parsing_erros.unwrap_or(false);
+
     // Create an application.
-    let mut app = match create_app(path) {
+    let mut app = match create_app(path, &ignore_errors) {
         Ok(app) => app,
         Err(e) => {
             println!("Could not create Application {}", e);
             return Err(e);
         }
     };
+
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -77,10 +84,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_app(path: String) -> Result<App<'static>, Box<dyn Error>> {
+fn create_app(path: String, ignore_errors: &bool) -> Result<App<'static>, Box<dyn Error>> {
     let lines = read_file(path.as_str())?;
     let mut app = App::new();
     app.file_path = path;
+    app.ignore_parsing_errors = ignore_errors.to_owned();
     app.event_table_state = TableState::new();
     app.filter_list_state = ListState::default();
     app.filter_list_state.select(Some(0));
