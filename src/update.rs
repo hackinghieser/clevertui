@@ -11,10 +11,9 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
                         app.quit()
                     }
                 }
-                KeyCode::Right | KeyCode::Char('j') => app.move_row_down(10),
-                KeyCode::Left | KeyCode::Char('k') => app.move_row_up(10),
-                KeyCode::Up | KeyCode::Char('h') => app.move_row_up(1),
-                KeyCode::Down | KeyCode::Char('l') => app.move_row_down(1),
+                KeyCode::Down | KeyCode::Char('j') => app.move_row_down(1),
+                KeyCode::Up | KeyCode::Char('k') => app.move_row_up(1),
+                KeyCode::Tab => app.move_row_down(10),
                 KeyCode::Char('f') | KeyCode::Char('F') => match app.app_state {
                     AppState::ITERATING => app.app_state = AppState::FILTERING,
                     AppState::FILTERING => app.app_state = AppState::ITERATING,

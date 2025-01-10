@@ -58,6 +58,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         let date_time = DateTime::parse_from_rfc3339(
                             line.time.clone().unwrap_or_default().as_ref(),
                         );
+
                         let row = Row::new(vec![
                             format!(
                                 "[{}] {}",
@@ -148,20 +149,25 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 let empty_log_paragraph = Paragraph::new(String::from("Nothing to show..."))
                     .style(Style::new().fg(Color::Gray));
                 f.render_widget(empty_log_paragraph, main[1]);
-            }
-            let stats = Block::default()
-                .borders(Borders::ALL)
-                .title_top(Line::from("Detail"))
-                .border_type(ratatui::widgets::BorderType::Rounded)
-                .title("Quit:'Q'  Filter:'F")
-                .title_position(ratatui::widgets::block::Position::Bottom)
-                .title_style(Style::default().add_modifier(Modifier::BOLD))
-                .title_alignment(ratatui::layout::Alignment::Left)
-                .title_style(Style::default().fg(ratatui::style::Color::White))
-                .border_style(Style::default().fg(ratatui::style::Color::White))
-                .style(Style::default());
+                let date_time = DateTime::parse_from_rfc3339(&detail.timestap.clone());
 
-            f.render_widget(stats, main[1]);
+                let stats = Block::default()
+                    .borders(Borders::ALL)
+                    .title_top(Line::from(format!(
+                        "{} | {}",
+                        detail.level,
+                        date_time.unwrap().format("%Y/%m/%d %H:%M:%S")
+                    )))
+                    .border_type(ratatui::widgets::BorderType::Rounded)
+                    .title("Move:'↓↑/jk' Quit:'q' Filter:'f' Jump:'Tap' ")
+                    .title_position(ratatui::widgets::block::Position::Bottom)
+                    .title_style(Style::default().add_modifier(Modifier::BOLD))
+                    .title_alignment(ratatui::layout::Alignment::Left)
+                    .title_style(Style::default().fg(ratatui::style::Color::White))
+                    .border_style(Style::default().fg(ratatui::style::Color::White))
+                    .style(Style::default());
+                f.render_widget(stats, main[1]);
+            }
         }
         AppState::FILTERING => {
             f.render_widget(Clear, f.area());
