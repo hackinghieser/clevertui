@@ -20,7 +20,7 @@ use std::{
 };
 use update::update;
 #[derive(Parser, Debug)]
-#[command(author, version, about)]
+#[command(author, version, about, arg_required_else_help = true)]
 struct Args {
     file: Option<String>,
 
@@ -40,7 +40,6 @@ use tui::Tui;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-
     let path = match args.file {
         Some(p) => p,
         None => {

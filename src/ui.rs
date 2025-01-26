@@ -6,7 +6,7 @@ use ratatui::{
     text::Line,
     widgets::{
         block::{self},
-        Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, Wrap,
+        Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table,
     },
     Frame,
 };
@@ -42,10 +42,6 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .constraints([Constraint::Percentage(100)])
                 .split(detail_area[0]);
 
-            let detail_footer = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(100)])
-                .split(detail_area[1]);
             for line in app.event_collection.events.iter() {
                 if !app.event_types.is_empty() {
                     let event_level = line.level.clone().unwrap_or_default().to_string();
@@ -95,6 +91,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         .to_string(),
                     event_id: selected_row.eventid.clone().unwrap_or_default().to_string(),
                 };
+
                 let table = Table::new(clef_rows.iter().map(|v| v.1.clone()), widths)
                     .column_spacing(0)
                     .header(Row::new(vec!["Time|Level", "Message"]).style(Style::new().bold()))
@@ -113,39 +110,13 @@ pub fn render(app: &mut App, f: &mut Frame) {
                     .row_highlight_style(Style::default().reversed());
                 f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
-                let log_level_detail = if detail.level.is_empty() {
-                    "No Log Level Defined"
-                } else {
-                    detail.level.as_str()
-                };
-
                 let status_details = Paragraph::new(format!(
-                    "{} | {}    {}   {} {}  ",
-                    detail.timestap,
-                    log_level_detail,
-                    detail.message,
-                    detail.exception,
-                    detail.event_id
+                    "Message: {} \n Expcetion: {} r\n EventID: {}",
+                    detail.message, detail.exception, detail.event_id
                 ))
-                .style(Style::default().fg(ratatui::style::Color::White))
-                .block(Block::new().padding(block::Padding {
-                    left: 1,
-                    right: 1,
-                    top: 1,
-                    bottom: 0,
-                }));
+                .style(Style::default().fg(ratatui::style::Color::White));
 
                 f.render_widget(status_details, detail_header[0]);
-                let rendered_message = Paragraph::new(detail.message)
-                    .style(Style::default().fg(ratatui::style::Color::White))
-                    .wrap(Wrap { trim: false })
-                    .block(Block::new().padding(block::Padding {
-                        left: 1,
-                        right: 1,
-                        top: 0,
-                        bottom: 1,
-                    }));
-                f.render_widget(rendered_message, detail_footer[0]);
                 let empty_log_paragraph = Paragraph::new(String::from("Nothing to show..."))
                     .style(Style::new().fg(Color::Gray));
                 f.render_widget(empty_log_paragraph, main[1]);
