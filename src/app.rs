@@ -66,14 +66,14 @@ impl<'a> App<'a> {
                 self.event_table_state.select(Some(selected - range));
             } else {
                 self.event_table_state
-                    .select(Some(self.event_collection.events.len() - 1));
+                    .select(self.event_collection.events.len().checked_sub(0));
             }
         }
     }
 
     pub fn move_row_down(&mut self, range: usize) {
         if let Some(selected) = self.event_table_state.selected() {
-            if selected < self.event_collection.events.len() - range {
+            if selected < self.event_collection.events.len() {
                 self.event_table_state.select(Some(selected + range));
             } else {
                 self.event_table_state.select(Some(0));
@@ -84,7 +84,7 @@ impl<'a> App<'a> {
     pub fn move_list_up(&mut self) {
         if let Some(selected) = self.filter_list_state.selected() {
             if selected >= 1 {
-                self.filter_list_state.select(Some(selected - 1));
+                self.filter_list_state.select(selected.checked_sub(1));
             } else {
                 self.filter_list_state.select(Some(0));
             }

@@ -111,14 +111,14 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
                 let status_details = Paragraph::new(format!(
-                    "Message: {} \n Expcetion: {} r\n EventID: {}",
+                    " Message: {} \n Expcetion: {}\n EventID: {}",
                     detail.message, detail.exception, detail.event_id
                 ))
                 .style(Style::default().fg(ratatui::style::Color::White));
 
-                f.render_widget(status_details, detail_header[0]);
+                f.render_widget(status_details, detail_area[1]);
                 let empty_log_paragraph = Paragraph::new(String::from("Nothing to show..."))
-                    .style(Style::new().fg(Color::Gray));
+                    .style(Style::new().fg(Color::White));
                 f.render_widget(empty_log_paragraph, main[1]);
                 let date_time = DateTime::parse_from_rfc3339(&detail.timestap.clone());
 
