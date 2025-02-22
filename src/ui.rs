@@ -37,11 +37,6 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .constraints([Constraint::Percentage(20), Constraint::Percentage(79)])
                 .split(main[1]);
 
-            let detail_header = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(100)])
-                .split(detail_area[0]);
-
             for line in app.event_collection.events.iter() {
                 if !app.event_types.is_empty() {
                     let event_level = line.level.clone().unwrap_or_default().to_string();
