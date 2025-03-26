@@ -25,7 +25,7 @@ struct Args {
     file: Option<String>,
 
     #[arg(short, long)]
-    ignore_parsing_erros: Option<bool>,
+    ignore_parsing_errors: Option<bool>,
 }
 
 use app::App;
@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let ignore_errors = args.ignore_parsing_erros.unwrap_or(false);
+    let ignore_errors = args.ignore_parsing_errors.unwrap_or(false);
 
     // Create an application.
     let mut app = match create_app(path, &ignore_errors) {
